@@ -422,24 +422,31 @@ def plot_percentage_crosstab_heatmap(
     return cross_tab
 
 
-def plot_top_corr_heatmap(
+def plot_pos_neg_corr_heatmap(
     df,
     target=TARGET,
-    n_features=15,
+    n_positive=10,
+    n_negative=10,
     figsize=(14, 10)
 ):
     corr_matrix = df.corr(numeric_only=True)
+    corr_with_target = corr_matrix[target].drop(target)
 
-    top_corr_features = (
-        corr_matrix[target]
-        .drop(target)
-        .abs()
+    positive_features = (
+        corr_with_target
         .sort_values(ascending=False)
-        .head(n_features)
+        .head(n_positive)
         .index
     )
 
-    selected_cols = [target] + top_corr_features.tolist()
+    negative_features = (
+        corr_with_target
+        .sort_values(ascending=True)
+        .head(n_negative)
+        .index
+    )
+
+    selected_cols = [target] + positive_features.tolist() + negative_features.tolist()
 
     plt.figure(figsize=figsize)
 
@@ -452,7 +459,7 @@ def plot_top_corr_heatmap(
         linewidths=0.5
     )
 
-    plt.title("Correlation Heatmap of Top Numeric Features Related to Sale Price")
+    plt.title("Correlation Heatmap of Most Positive and Negative Features Related to Sale Price")
     plt.show()
 
 
